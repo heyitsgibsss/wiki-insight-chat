@@ -23,21 +23,20 @@ const Chat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Check auth
+    // Check auth (optional - only for saving chat history)
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        navigate("/auth");
-      } else {
+      if (session) {
         setUser(session.user);
         loadChatHistory(session.user.id);
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session) {
-        navigate("/auth");
-      } else {
+      if (session) {
         setUser(session.user);
+        loadChatHistory(session.user.id);
+      } else {
+        setUser(null);
       }
     });
 
@@ -82,8 +81,6 @@ const Chat = () => {
   };
 
   const handleSendMessage = async (message: string) => {
-    if (!user) return;
-
     // Add user message
     const userMessage: Message = {
       id: `temp-${Date.now()}`,
@@ -112,13 +109,15 @@ const Chat = () => {
       };
       setMessages((prev) => [...prev, botMessage]);
 
-      // Save to database
-      await supabase.from("chats").insert({
-        user_id: user.id,
-        message: message,
-        response: botMessage.message,
-        wikipedia_url: data.url,
-      });
+      // Save to database only if user is logged in
+      if (user) {
+        await supabase.from("chats").insert({
+          user_id: user.id,
+          message: message,
+          response: botMessage.message,
+          wikipedia_url: data.url,
+        });
+      }
 
     } catch (error: any) {
       console.error("Error:", error);
