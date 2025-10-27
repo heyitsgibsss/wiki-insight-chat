@@ -92,8 +92,8 @@ const Chat = () => {
     setLoading(true);
 
     try {
-      // Call Wikipedia API via edge function
-      const { data, error } = await supabase.functions.invoke("wikipedia-search", {
+      // Call smart chat edge function
+      const { data, error } = await supabase.functions.invoke("smart-chat", {
         body: { query: message },
       });
 
@@ -102,9 +102,9 @@ const Chat = () => {
       // Add bot response
       const botMessage: Message = {
         id: `bot-${Date.now()}`,
-        message: data.summary || "I couldn't find information on that topic.",
+        message: data.summary || "I couldn't respond to that.",
         isUser: false,
-        wikipediaUrl: data.url,
+        wikipediaUrl: data.type === 'wikipedia' ? data.url : undefined,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botMessage]);
@@ -115,7 +115,7 @@ const Chat = () => {
           user_id: user.id,
           message: message,
           response: botMessage.message,
-          wikipedia_url: data.url,
+          wikipedia_url: data.type === 'wikipedia' ? data.url : null,
         });
       }
 

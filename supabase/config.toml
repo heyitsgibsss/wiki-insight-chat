@@ -2,3 +2,6 @@ project_id = "mbedqextqbdqpugwvxet"
 
 [functions.wikipedia-search]
 verify_jwt = false
+
+[functions.smart-chat]
+verify_jwt = false
