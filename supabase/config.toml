@@ -1,0 +1,4 @@
+project_id = "mbedqextqbdqpugwvxet"
+
+[functions.wikipedia-search]
+verify_jwt = false
